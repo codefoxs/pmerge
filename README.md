@@ -18,7 +18,7 @@ Stata's native `merge` only supports equi-joins. Common research tasks like CRSP
 
 + Stata 16.0+
 + Python 3.8+ with `duckdb` and `pandas` (`pip install duckdb pandas`)
-+ [`pq`](https://github.com/mdroste/stata-pq) command installed
++ [`pq`](https://github.com/jrothbaum/stata_parquet_io) command installed
 
 ## Install
 

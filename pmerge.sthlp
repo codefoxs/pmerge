@@ -142,7 +142,7 @@
 
 {pstd}1. Stata 16.0 or later (Python integration required){p_end}
 {pstd}2. Python 3.8+ with {bf:duckdb} and {bf:pandas} packages installed{p_end}
-{pstd}3. {cmd:pq} command installed ({browse "https://github.com/mdroste/stata-pq":github.com/mdroste/stata-pq}){p_end}
+{pstd}3. {cmd:pq} command installed ({browse "https://github.com/jrothbaum/stata_parquet_io":github.com/mdroste/stata-pq}){p_end}
 {pstd}4. Python path configured in Stata: {cmd:set python_exec "path/to/python.exe", permanently}{p_end}
 
 {marker author}{...}
