@@ -1,0 +1,3 @@
+v 0.1.1
+
+p 'PMERGE': SQL-style merge powered by DuckDB

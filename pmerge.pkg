@@ -1,0 +1,13 @@
+v 0.1.1
+d 'PMERGE': SQL-style merge powered by DuckDB
+d KW: China
+d KW: SQL
+d KW: DuckDB
+d KW: Parquet
+d 
+d Distribution-Date: 20260411
+d 
+
+f pmerge.ado
+f pmerge.py
+f pmerge.sthlp
