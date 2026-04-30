@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.1.1 11Apr2026}{...}
+{* *! version 0.1.2 01May2026}{...}
 {vieweralsosee "[R] merge" "help merge"}{...}
 {vieweralsosee "[R] joinby" "help joinby"}{...}
 {vieweralsosee "[R] pq" "help pq"}{...}
