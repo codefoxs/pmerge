@@ -324,11 +324,12 @@ program define pmerge
     local merge_var `generate'
     local nogen `nogenerate'
     
-    qui findfile pmerge.ado
-    local precmdurl = ustrregexra(r(fn),"/pmerge.ado","")
-    local cmdurl "`=ustrregexra("`precmdurl'","\\","/")'"
+    //qui findfile pmerge.ado
+    //local precmdurl = ustrregexra(r(fn),"/pmerge.ado","")
+    //local cmdurl "`=ustrregexra("`precmdurl'","\\","/")'"
     
-    python script "`cmdurl'/pmerge.py"
+    //python script "`cmdurl'/pmerge.py"
+    python script "`c(sysdir_plus)'/py/pmerge.py"
 
     pq use "`output_pq'", clear
 
