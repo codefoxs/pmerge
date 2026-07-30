@@ -1,16 +1,14 @@
-*! Version 0.1.2 SQL-style merge for Stata, powered by DuckDB.
+*! Version 0.1.3 SQL-style merge for Stata, powered by DuckDB.
 
 cap program drop _pmerge_dump_meta
 program define _pmerge_dump_meta
     syntax , OUTfile(string) [USINGside CONFlicts(string) LBLConflicts(string) RENames(string)]
 
     * 用 " a b c " 形式做空格包围的子串匹配
-    local cc_raw "`conflicts'"
-    local lc_raw "`lblconflicts'"
-    local cc_low = lower(`"`cc_raw'"')
-    local lc_low = lower(`"`lc_raw'"')
-    local cc " `cc_low' "
-    local lc " `lc_low' "
+    * 注意：Stata 变量名/值标签名区分大小写（lev 与 LEV 是两个变量），
+    * 这里必须精确匹配，不能先 lower()，否则 LEV 会被误判成与 lev 冲突
+    local cc " `conflicts' "
+    local lc " `lblconflicts' "
 
     * 解析 renames："from=to|from=to|..."
     local nren 0
@@ -77,8 +75,7 @@ program define _pmerge_dump_meta
                 }
                 local lname_out "`lname'"
                 if "`usingside'" != "" {
-                    local _ll = lower("`lname'")
-                    if strpos(`"`lc'"', " `_ll' ") > 0 {
+                    if strpos(`"`lc'"', " `lname' ") > 0 {
                         local lname_out "`lname'_1"
                     }
                 }
@@ -97,10 +94,9 @@ program define _pmerge_dump_meta
     qui ds
     local vars `r(varlist)'
     foreach v of local vars {
-        local vlow = lower("`v'")
         local target "`v'"
         if "`usingside'" != "" {
-            if strpos(`"`cc'"', " `vlow' ") > 0 {
+            if strpos(`"`cc'"', " `v' ") > 0 {
                 local target "`v'_1"
             }
         }
@@ -111,8 +107,7 @@ program define _pmerge_dump_meta
 
         local vval_out "`vval'"
         if "`usingside'" != "" & "`vval'" != "" {
-            local _vl = lower("`vval'")
-            if strpos(`"`lc'"', " `_vl' ") > 0 {
+            if strpos(`"`lc'"', " `vval' ") > 0 {
                 local vval_out "`vval'_1"
             }
         }
@@ -130,7 +125,7 @@ program define _pmerge_dump_meta
         * master 端：keepcase rename 的 alias 也写一份
         if "`usingside'" == "" & `nren' > 0 {
             forvalues i = 1/`nren' {
-                if lower("`rfrom_`i''") == "`vlow'" {
+                if "`rfrom_`i''" == "`v'" {
                     local atgt "`rto_`i''"
                     if "`atgt'" != "`v'" {
                         if `"`vlbl'"' != "" {
@@ -242,11 +237,11 @@ program define pmerge
         }
     }
 
-    * 记录 master 列名/值标签名（小写），供 using 端冲突检测
+    * 记录 master 列名/值标签名，供 using 端冲突检测（区分大小写）
     qui ds
-    local master_cols_l = lower("`r(varlist)'")
+    local master_cols_l "`r(varlist)'"
     qui label dir
-    local master_lbls_l = lower("`r(names)'")
+    local master_lbls_l `"`r(names)'"'
 
     * 清掉旧的 apply 文件
     cap erase "./.pmerge_parquet/master_apply.do"
@@ -331,7 +326,24 @@ program define pmerge
     //python script "`cmdurl'/pmerge.py"
     python script "`c(sysdir_plus)'/py/pmerge.py"
 
+    * Python 端的用法错误（列名找不到/有歧义等）在这里按 Stata 的方式报出来
+    if `"`pm_error'"' != "" {
+        di as err `"pmerge: `pm_error'"'
+        exit 198
+    }
+
     pq use "`output_pq'", clear
+
+    * DuckDB 标识符不区分大小写，仅大小写不同的输出列（如 lev/LEV）
+    * 只能先以占位名写出，读回来后再改回真实变量名
+    if "`pm_ren_from'" != "" {
+        local _n : word count `pm_ren_from'
+        forvalues i = 1/`_n' {
+            local _f : word `i' of `pm_ren_from'
+            local _t : word `i' of `pm_ren_to'
+            rename `_f' `_t'
+        }
+    }
 
     * 还原 dta→parquet 过程中丢失的标签
     cap qui do "./.pmerge_parquet/master_apply.do"

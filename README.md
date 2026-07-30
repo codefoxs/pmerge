@@ -160,6 +160,19 @@ When master and using share column names, master columns keep their original nam
 note: using-side duplicate columns renamed with _1 suffix: gvkey, year
 ```
 
+## Variable names are case sensitive
+
+Stata treats `lev` and `LEV` as two different variables, and `pmerge` follows Stata, not SQL. Names that differ only in case are **not** duplicates: both survive the merge under their own names, and neither gets a `_1` suffix.
+
+This matters because DuckDB identifiers are case insensitive. Left to itself, DuckDB would rename `LEV` to `LEV_1` on read, and would silently resolve `a.LEV` to `a.lev` — returning the wrong column without any error. `pmerge` works around this by reading the real variable names out of the Parquet metadata and giving case-colliding columns unique internal handles for the duration of the query.
+
+Column references are matched exactly first. A differently-cased spelling still resolves as long as it is unambiguous (`a.LEV` finds `lev` when `lev` is the only candidate), but if both `lev` and `LEV` exist, an inexact spelling is rejected rather than guessed at:
+
+```
+. pmerge "a.id=b.id" using "u.dta", keepusing(a.Lev)
+pmerge: a.Lev is ambiguous: master data has lev and LEV -- spell it exactly
+```
+
 ## Author
 
 1. 公众号：凯恩斯学计量

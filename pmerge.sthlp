@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.1.2 01May2026}{...}
+{* *! version 0.1.3 30Jul2026}{...}
 {vieweralsosee "[R] merge" "help merge"}{...}
 {vieweralsosee "[R] joinby" "help joinby"}{...}
 {vieweralsosee "[R] pq" "help pq"}{...}
@@ -60,6 +60,8 @@
 {pstd}The ON condition uses SQL syntax with {bf:a.} referring to the master dataset and {bf:b.} referring to the using file. Multiple conditions are connected with {bf:AND}.{p_end}
 
 {pstd}When two tables share column names, master columns keep their original names and using-side duplicates are automatically renamed with a {bf:_1} suffix.{p_end}
+
+{pstd}Variable names are case sensitive, as in Stata: {bf:lev} and {bf:LEV} are two different variables, both are kept, and neither is treated as a duplicate of the other. Column references are matched exactly first; a differently-cased spelling still resolves when it is unambiguous, but is rejected with an error when both spellings exist.{p_end}
 
 {marker options}{...}
 {title:Options}
