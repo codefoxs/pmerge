@@ -1,0 +1,11 @@
+# pmerge 运行时的临时 parquet 目录
+.pmerge_parquet/
+
+# demo/case_demo.do 运行时生成的测试数据
+demo/case_*.dta
+
+# Stata / Python 杂项
+*.smcl
+*.log
+__pycache__/
+*.pyc
